@@ -1,4 +1,4 @@
-package uni.fmi.masters.mycoolapp.ui.gallery;
+package uni.fmi.masters.mycoolapp.ui.product;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
