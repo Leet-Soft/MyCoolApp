@@ -4,9 +4,12 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -42,6 +45,8 @@ public class ProductFragment extends Fragment {
 
     public static final int REQUEST_BARCODE_CODE = 13;
     ListView productLV;
+    EditText filterET;
+
     ProductAdapter adapter;
     ArrayList<Product> products;
     ProgressDialog dialog;
@@ -162,6 +167,25 @@ public class ProductFragment extends Fragment {
         productLV.setAdapter(adapter);
         addProductB = root.findViewById(R.id.addProductButton);
         addProductB.setOnClickListener(onClick);
+        filterET = root.findViewById(R.id.filterEditText);
+
+        filterET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
 
         dialog = new ProgressDialog(getContext());
         dialog.show();
@@ -224,6 +248,70 @@ public class ProductFragment extends Fragment {
 
             }
         }).start();
+
+
+
+        productLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                final Product prod = (Product) parent.getItemAtPosition(position);
+
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        String urlString = "http://78.130.252.70:8989/DeleteProduct?id=" + prod.getID();
+
+                                HttpURLConnection urlConnection = null;
+
+                                try{
+                                    URL url = new URL(urlString);
+                                    urlConnection = (HttpURLConnection) url.openConnection();
+
+                                    BufferedInputStream stream = new BufferedInputStream(urlConnection.getInputStream());
+                                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+                                    String response = reader.readLine();
+
+                                    if(response != null){
+                                if(response.equals("false")){
+                                    Toast.makeText(getActivity(), "Item was not deleted!", Toast.LENGTH_LONG).show();
+                                }
+
+                            }
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    for(int i = 0 ; i < products.size(); i++){
+                                        if(products.get(i).getID() == prod.getID()){
+                                            products.remove(i);
+                                        }
+                                    }
+
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            if(urlConnection != null)
+                                urlConnection.disconnect();
+                        }
+                    }
+                }).start();
+
+                return false;
+            }
+        });
+
+
 
         return root;
     }

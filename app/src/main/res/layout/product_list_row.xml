@@ -60,5 +60,12 @@
             android:gravity="center"
             android:text="1112546875413"
             android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/idTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>
