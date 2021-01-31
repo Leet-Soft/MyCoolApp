@@ -91,7 +91,7 @@ public class ProductFragment extends Fragment {
 
                                     int recievedID = Integer.parseInt(response);
 
-                                    Product product = new Product();
+                                    final Product product = new Product();
                                     product.setID(recievedID);
                                     product.setName(nameET.getText().toString());
                                     product.setQuantity(Integer.parseInt(quantityET.getText().toString()));
@@ -99,10 +99,15 @@ public class ProductFragment extends Fragment {
                                     product.setNumber(numberET.getText().toString());
                                     product.setBarcode(barcodeET.getText().toString());
 
-                                    products.add(product);
-                                    adapter.notifyDataSetChanged();
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            products.add(product);
+                                            adapter.notifyDataSetChanged();
 
-                                    customDialog.hide();
+                                            customDialog.hide();
+                                        }
+                                    });
                                 }
 
                             } catch (MalformedURLException e) {
@@ -118,7 +123,7 @@ public class ProductFragment extends Fragment {
                                     conn.disconnect();
                             }
                         }
-                    });
+                    }).start();
                 }
             });
 
