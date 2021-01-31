@@ -5,13 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -34,6 +37,24 @@ public class BarcodeActivity extends AppCompatActivity {
     CameraSource cameraSource;
     ToneGenerator toneGenerator;
 
+    private View.OnClickListener onClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            if(R.id.okButton == v.getId()){
+                Intent intent = new Intent();
+
+                intent.setData(Uri.parse(barcodeTV.getText().toString()));
+
+                setResult(RESULT_OK, intent);
+            }else{
+                setResult(RESULT_CANCELED);
+            }
+
+            finish();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +64,9 @@ public class BarcodeActivity extends AppCompatActivity {
         barcodeTV = findViewById(R.id.barcodeTextView);
         okB = findViewById(R.id.okButton);
         cancelB = findViewById(R.id.cancelButton);
+
+        okB.setOnClickListener(onClick);
+        cancelB.setOnClickListener(onClick);
 
         toneGenerator = new ToneGenerator(AudioManager.STREAM_ALARM, 50);
         init();

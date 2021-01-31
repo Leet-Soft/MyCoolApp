@@ -2,6 +2,7 @@ package uni.fmi.masters.mycoolapp.ui.product;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,11 +32,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import uni.fmi.masters.mycoolapp.BarcodeActivity;
 import uni.fmi.masters.mycoolapp.Product;
 import uni.fmi.masters.mycoolapp.R;
 
+import static android.app.Activity.RESULT_OK;
+
 public class ProductFragment extends Fragment {
 
+    public static final int REQUEST_BARCODE_CODE = 13;
     ListView productLV;
     ProductAdapter adapter;
     ArrayList<Product> products;
@@ -42,6 +48,8 @@ public class ProductFragment extends Fragment {
     FloatingActionButton addProductB;
 
     Dialog customDialog;
+
+    EditText barcodeET;
 
     private View.OnClickListener onClick = new View.OnClickListener() {
         @Override
@@ -53,7 +61,7 @@ public class ProductFragment extends Fragment {
             final EditText priceET = customDialog.findViewById(R.id.priceEditText);
             final EditText quantityET = customDialog.findViewById(R.id.quantityEditText);
             final EditText numberET = customDialog.findViewById(R.id.numberEditText);
-            final EditText barcodeET = customDialog.findViewById(R.id.barcodeEditText);
+            barcodeET = customDialog.findViewById(R.id.barcodeEditText);
             Button scanB = customDialog.findViewById(R.id.scanBarcodeButton);
             Button okB = customDialog.findViewById(R.id.okButton);
             Button cancelB = customDialog.findViewById(R.id.cancelButton);
@@ -64,6 +72,7 @@ public class ProductFragment extends Fragment {
                     customDialog.cancel();
                 }
             });
+
 
             okB.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -131,7 +140,7 @@ public class ProductFragment extends Fragment {
             scanB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    startActivityForResult(new Intent(getActivity(), BarcodeActivity.class), REQUEST_BARCODE_CODE);
                 }
             });
 
@@ -155,8 +164,7 @@ public class ProductFragment extends Fragment {
         addProductB.setOnClickListener(onClick);
 
         dialog = new ProgressDialog(getContext());
-     //   dialog.show();
-
+        dialog.show();
 
         new Thread(new Runnable() {
             @Override
@@ -193,7 +201,14 @@ public class ProductFragment extends Fragment {
                         }
                     }
 
-                    adapter.notifyDataSetChanged();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            dialog.hide();
+                        }
+                    });
+
 
 
                 } catch (MalformedURLException e) {
@@ -211,5 +226,17 @@ public class ProductFragment extends Fragment {
         }).start();
 
         return root;
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == REQUEST_BARCODE_CODE){
+            if(resultCode == RESULT_OK){
+                barcodeET.setText(data.getData().toString());
+            }else{
+                Toast.makeText(getActivity(), "No barcode selected!", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
