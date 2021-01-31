@@ -1,5 +1,7 @@
 package uni.fmi.masters.mycoolapp;
 
+import android.app.Instrumentation;
+
 public class Product {
     private int ID;
     private String name;
@@ -15,6 +17,8 @@ public class Product {
         this.number = number;
         this.barcode = barcode;
     }
+
+    public  Product() { }
 
     public int getID() {
         return ID;

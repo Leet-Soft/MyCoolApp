@@ -56,12 +56,14 @@ public class LoginActivity extends AppCompatActivity {
                 String passwordInput = passwordET.getText().toString();
                 new LoginAsynTask(usernameInput, passwordInput).execute();
 
+
             }else{
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
             }
         }
     };
+
 
     private class LoginAsynTask extends AsyncTask<Void, Void, Void> {
 
